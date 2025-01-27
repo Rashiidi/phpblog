@@ -1,21 +1,37 @@
 <?php
-// require '../includes/db.php';
-
+// register.php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $password = $_POST['password'];
 
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-    $stmt->execute([$username, $email, $password]);
+    // Hash the password
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    header("Location: login.php");
+    // Database connection
+    $conn = new mysqli('localhost', 'root', '', 'blog');
+
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Insert user into the database
+    $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    $stmt->bind_param("ss", $username, $hashedPassword);
+
+    if ($stmt->execute()) {
+        echo "Registration successful!";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
+    $conn->close();
 }
 ?>
 
-<form method="POST">
-    <input type="text" name="username" required placeholder="Username">
-    <input type="email" name="email" required placeholder="Email">
-    <input type="password" name="password" required placeholder="Password">
+<form method="POST" action="">
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
     <button type="submit">Register</button>
 </form>
