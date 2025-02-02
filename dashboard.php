@@ -2,9 +2,9 @@
 require './db.php';
 require './function.php';
 
-if (!isLoggedIn()) {
-    redirect('login.php');
-}
+// if (!isLoggedIn()) {
+//     redirect('login.php');
+// }
 
 $total_posts = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
 $total_users = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
@@ -33,7 +33,9 @@ $total_categories = $pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn(
     <a class="navbar-brand" href="#">BlogApp</a>
     <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
-            
+        <li class="nav-item">
+                <a class="nav-link" href="user.php">User</a>
+            </li>
         <li class="nav-item">
                 <a class="nav-link" href="create_post.php">create post</a>
             </li>

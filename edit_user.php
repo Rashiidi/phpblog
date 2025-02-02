@@ -2,23 +2,45 @@
 require './db.php';
 require './function.php';
 
+// Uncomment this if you want to restrict access to admins only
 // if (!isAdmin()) {
 //     redirect('index.php');
 // }
 
+// Validate the ID parameter
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    redirect('manage_users.php');
+}
+
 $id = $_GET['id'];
+
+// Fetch the user details from the database
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch();
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $role = $_POST['role'];
-
-    $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?");
-    $stmt->execute([$username, $email, $role, $id]);
+// If the user doesn't exist, redirect to the manage users page
+if (!$user) {
     redirect('manage_users.php');
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $role = trim($_POST['role']);
+
+    // Validate inputs
+    if (empty($username) || empty($email) || empty($role)) {
+        $error = "All fields are required.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Invalid email format.";
+    } else {
+        // Update the user in the database
+        $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?");
+        $stmt->execute([$username, $email, $role, $id]);
+        redirect('manage_users.php');
+    }
 }
 ?>
 
@@ -83,23 +105,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-weight: bold;
             color: #555;
         }
+        .alert {
+            color: red;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Edit User</h1>
+        <?php if (isset($error)): ?>
+            <div class="alert"><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
         <form method="POST">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
             </div>
             <div class="form-group">
                 <label for="role">Role</label>
-                <select name="role" required>
+                <select id="role" name="role" required>
                     <option value="admin" <?php echo $user['role'] == 'admin' ? 'selected' : ''; ?>>Admin</option>
                     <option value="editor" <?php echo $user['role'] == 'editor' ? 'selected' : ''; ?>>Editor</option>
                     <option value="subscriber" <?php echo $user['role'] == 'subscriber' ? 'selected' : ''; ?>>Subscriber</option>
