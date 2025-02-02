@@ -114,6 +114,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             text-align: center;
             margin-bottom: 1rem;
         }
+        /* Username-specific styles */
+label:first-of-type {
+    display: block;
+    margin-bottom: 8px;
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input[name="username"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin-bottom: 1.2rem;
+}
+
+input[name="username"]:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+input[name="username"]::placeholder {
+    color: #a0aec0;
+    font-weight: 400;
+}
     </style>
 </head>
 <body>
@@ -123,6 +156,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p class="error"><?php echo $error; ?></p>
         <?php endif; ?>
         <form action="login.php" method="post">
+
+             <label>Username:</label>
+            <input type="text" name="username" placeholder="Enter username" required>
+
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
